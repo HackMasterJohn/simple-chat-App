@@ -1,6 +1,7 @@
 Author: Korre Henry
 
 # Database Schema:
+    User Object: Defined by the IP Address.
     Message Object: { A string a text, user name, & timestamp }
     Conversation Object: A list of messages.
 
