@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Message from './Message';
+import MessageSendForm from './MessageSendForm';
 
 export default function ConversationContainer() {
     const messageList = 
@@ -15,6 +16,7 @@ export default function ConversationContainer() {
     return (
       <Box sx={{ maxWidth: 275 }}>
         {messageComponents}
+        <MessageSendForm />
       </Box>
     );
   }
