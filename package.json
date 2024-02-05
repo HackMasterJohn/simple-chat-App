@@ -1,7 +1,7 @@
 {
   "name": "simple-chat-app",
   "version": "0.1.0",
-  "homepage": "https://hackmasterjohn.github.io/simpleChatApp",
+  "homepage": "https://hackmasterjohn.github.io/simple-chat-App",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.11.3",
