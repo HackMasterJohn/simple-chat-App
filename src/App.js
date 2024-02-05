@@ -1,13 +1,10 @@
 import './App.css';
-import Message from './components/Message';
-import { StyledEngineProvider } from '@mui/material/styles';
+import ConversationContainer from './components/ConversationContainer';
 
 function App() {
   return (
     <div className="App">
-    <StyledEngineProvider injectFirst>
-      <Message />
-    </StyledEngineProvider>
+      <ConversationContainer />
     </div>
   );
 }
