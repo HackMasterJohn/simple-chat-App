@@ -1,18 +1,21 @@
 import Button from '@mui/material/Button';
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
-import { UpdateGroupConversation }  from '../server/server.js'
+import { useState } from "react";
+import { SendGroupMessage }  from '../server/server.js'
 
 export default function MessageSendForm() {
+    const [messageContent, setMessageContent] = useState(" ");
     return (
         <TextField
+            onChange={e => setMessageContent(e.target.value)}
             id="input-with-icon-textfield"
-            label="TextField"
+            label="Message"
             InputProps={{
                 endAdornment: (
-                <TextField value="Hello" onChange={(e) => console.log("hello")}position="end">
-                    <Button variant="text">Text</Button>
-                </TextField>
+                <InputAdornment position="end">
+                    <Button variant="text" onClick={(e) => SendGroupMessage(messageContent)}>Text</Button>
+                </InputAdornment>
             ),
             }}
             variant="standard"
