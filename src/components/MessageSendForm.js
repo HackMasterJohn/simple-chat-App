@@ -5,7 +5,7 @@ import { useState } from "react";
 import { SendGroupMessage }  from '../server/server.js'
 
 export default function MessageSendForm() {
-    const [messageContent, setMessageContent] = useState(" ");
+    const [messageContent, setMessageContent] = useState("");
     return (
         <TextField
             onChange={e => setMessageContent(e.target.value)}
