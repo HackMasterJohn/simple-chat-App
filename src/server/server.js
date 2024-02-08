@@ -1,44 +1,52 @@
-import { doc, setDoc } from "firebase/firestore"; 
-import { db } from "./firestore.js"; 
+import { doc, setDoc, getDoc } from "firebase/firestore"; 
+import { db } from "../server/firestore.js"; 
+import { collection, query, onSnapshot } from "firebase/firestore";
 
 
 // Add a new document in collection "Users"
-async function CreateSingleUser(ipAddress)
+async function CreateSingleUser(ipAddress, userName)
 {
-    var hash = ConvertIPAddressIntoUserId(ipAddress);
-    var hash_AsString = hash.toString();
+    ipAddress = CleanIp(ipAddress);
     var user_object = 
-    { 
-        user_hash: hash,
+    {
         user_ip: ipAddress,
-        user_name: "dummy name"
+        user_name: userName
     };
-    console.log("Created User for : "+ipAddress)
-    console.log(user_object);
-    await setDoc(doc(db, "users", hash_AsString), user_object);
+
+    await setDoc(doc(db, "users", ipAddress), user_object);
+}
+
+// Look up user from "Users" collection
+async function LookUpUserIp(ipAddress)
+{
+    ipAddress = CleanIp(ipAddress);
+    const docRef = doc(db, "users", ipAddress);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      console.log("Data For IP Address: "+ipAddress+" is ==> ");
+      let obj = docSnap.data();
+      console.log(obj);
+    } else {
+      console.log("No such document, for IP Address: " + ipAddress);
+      return false;
+    }
 }
 
 async function UpdateGroupConversation(message)
 {
-    var ipData = { ip : null };
-    await RegisterIPAddress( (ip) => {ipData.ip = ip} );
+    var ipAddressData = { ip : null };
+    await RegisterIPAddress( (ip) => {ipAddressData.ip = ip} );
 
-    var ipAddress = ipData.ip;
-    var hash = ConvertIPAddressIntoUserId(ipAddress);
-    var hash_AsString = hash.toString();
     var message_Object = 
     {
-        user_hash: hash_AsString,
-        user_ip: ipAddress,
-        user_name: " test name -- ",
+        user_ip: ipAddressData.ip,
+        user_name: "",
         message: message,
         timestamp: "Dummy time"
     }
     var guid = generateGuid();
-    console.log(guid);
     await setDoc(doc(db, "groupConvo", guid), message_Object);
-    console.log("Message object with ID: "+guid);
-    console.log(message_Object);
 }
 
 async function RegisterIPAddress( callBack )
@@ -47,9 +55,13 @@ async function RegisterIPAddress( callBack )
     .then(response => response.text())
     .then(data => 
         { 
-            CreateSingleUser(data);
-            callBack(data);
-            console.log("IP Address Identified: " + data);
+            data = CleanIp(data);
+            if (LookUpUserIp(data))
+            {
+                callBack(data);
+                console.log("IP Address Identified: " + data);
+            }
+            //CreateSingleUser(data);
         });
 }
 
@@ -82,20 +94,35 @@ function ConvertIPAddressIntoUserId(user_ipAddress)
 
     user_id = num;
 
-    console.log("User Id for IP: "+ ipAddress + " is : "+ user_ipAddress);
-
     return user_id;
 }
 
-async function PullGroupConversation()
-{
 
+function CleanIp (ipAddress)
+{
+    var newData = ipAddress.trim();
+
+    return newData;
+}
+
+async function PullGroupConversation(callBack)
+{
+    const q = query(collection(db, "groupConvo"));
+    onSnapshot(q, (querySnapshot) => {
+      const newMessages = [];
+      querySnapshot.forEach((doc) => {
+        // Get list of messages
+        var messageObject = doc.data();
+        newMessages.push(messageObject)
+        callBack(newMessages);
+      });
+    });
 }
 
 export const RegisterIPAsUser = RegisterIPAddress;
 export const CreateUser = CreateSingleUser;
-//export const CreateConversation = CreateSingleConversation;
 export const SendGroupMessage = UpdateGroupConversation;
+export const UpdateMessages = PullGroupConversation;
 
 function generateGuid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {

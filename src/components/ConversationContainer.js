@@ -2,40 +2,31 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Message from './Message';
 import MessageSendForm from './MessageSendForm';
-import { db } from "../server/firestore.js"; 
-import { collection, query, onSnapshot } from "firebase/firestore";
-import { useState, useEffect } from "react";
+import LoginForm from './LoginForm';
+import { useState } from "react";
+import { UpdateMessages } from '../server/server.js';
 
 
 
 function GetMessageView (messageList)
 {
     return messageList.map(
-        (messageObj) =>
-            <Message key={"ss"} username={messageObj.user_name} message={messageObj.message} />
+        (messageObj, i) =>
+            <Message key={i} username={messageObj.user_name} message={messageObj.message} />
         );
 }
 
 export default function ConversationContainer() {
   const [messageList, updateMessageList] = useState([]);
-
-    const q = query(collection(db, "groupConvo"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const newMessages = [];
-      querySnapshot.forEach((doc) => {
-        // Get list of messages
-        var messageObject = doc.data();
-        newMessages.push(messageObject)
-        updateMessageList(newMessages);
-      });
-    });
-
-    const messageComponents = GetMessageView(messageList);
+  UpdateMessages(updateMessageList);
+  const messageComponents = GetMessageView(messageList);
 
     return (
-      <Box sx={{ maxWidth: 275 }}>
-        {messageComponents}
-        <MessageSendForm />
+      <Box sx={{}}>
+        <LoginForm/>
       </Box>
     );
   }
+
+  //        {messageComponents}
+  // <MessageSendForm />
