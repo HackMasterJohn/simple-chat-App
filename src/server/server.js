@@ -4,9 +4,12 @@ import { collection, query, onSnapshot } from "firebase/firestore";
 
 
 // Add a new document in collection "Users"
-async function CreateSingleUser(ipAddress, userName)
+export async function CreateSingleUser(userName)
 {
+    var ipAddress = null;
+    GetIPAddress((data) => ipAddress = data)
     ipAddress = CleanIp(ipAddress);
+
     var user_object = 
     {
         user_ip: ipAddress,
@@ -17,7 +20,7 @@ async function CreateSingleUser(ipAddress, userName)
 }
 
 // Look up user from "Users" collection
-async function LookUpUserIp(ipAddress)
+export async function LookUpUserIp(ipAddress, callBack)
 {
     ipAddress = CleanIp(ipAddress);
     const docRef = doc(db, "users", ipAddress);
@@ -26,6 +29,7 @@ async function LookUpUserIp(ipAddress)
     if (docSnap.exists()) {
       console.log("Data For IP Address: "+ipAddress+" is ==> ");
       let obj = docSnap.data();
+      callBack (obj)
       console.log(obj);
     } else {
       console.log("No such document, for IP Address: " + ipAddress);
@@ -33,10 +37,10 @@ async function LookUpUserIp(ipAddress)
     }
 }
 
-async function UpdateGroupConversation(message)
+export async function SendGroupMessage(message)
 {
     var ipAddressData = { ip : null };
-    await RegisterIPAddress( (ip) => {ipAddressData.ip = ip} );
+    await GetIPAddress( (ip) => {ipAddressData.ip = ip} );
 
     var message_Object = 
     {
@@ -49,20 +53,37 @@ async function UpdateGroupConversation(message)
     await setDoc(doc(db, "groupConvo", guid), message_Object);
 }
 
-async function RegisterIPAddress( callBack )
+export async function GetIPAddress( callBack )
 {
     await fetch("https://api.ipify.org/?format=json%27")
     .then(response => response.text())
     .then(data => 
         { 
             data = CleanIp(data);
-            if (LookUpUserIp(data))
+            if (data.length > 3)
             {
                 callBack(data);
-                console.log("IP Address Identified: " + data);
             }
-            //CreateSingleUser(data);
+            else
+            {
+                callBack(data);
+                console.log("Failed to get IP Address for device.")
+            }
         });
+}
+
+export async function PullGroupConversation(callBack)
+{
+    const q = query(collection(db, "groupConvo"));
+    onSnapshot(q, (querySnapshot) => {
+      const newMessages = [];
+      querySnapshot.forEach((doc) => {
+        // Get list of messages
+        var messageObject = doc.data();
+        newMessages.push(messageObject)
+        callBack(newMessages);
+      });
+    });
 }
 
 function ConvertIPAddressIntoUserId(user_ipAddress)
@@ -105,24 +126,10 @@ function CleanIp (ipAddress)
     return newData;
 }
 
-async function PullGroupConversation(callBack)
-{
-    const q = query(collection(db, "groupConvo"));
-    onSnapshot(q, (querySnapshot) => {
-      const newMessages = [];
-      querySnapshot.forEach((doc) => {
-        // Get list of messages
-        var messageObject = doc.data();
-        newMessages.push(messageObject)
-        callBack(newMessages);
-      });
-    });
-}
-
-export const RegisterIPAsUser = RegisterIPAddress;
-export const CreateUser = CreateSingleUser;
-export const SendGroupMessage = UpdateGroupConversation;
-export const UpdateMessages = PullGroupConversation;
+//export const RegisterIPAsUser = GetIPAddress;
+//export const CreateUser = CreateSingleUser;
+//export const SendGroupMessage = UpdateGroupConversation;
+//export const UpdateMessages = PullGroupConversation;
 
 function generateGuid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {

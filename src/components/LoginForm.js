@@ -1,13 +1,13 @@
 import { useState } from "react";
 import "bulma/css/bulma.css";
 import "../css/loginPageStyles.css";
+import { CreateSingleUser } from '../server/server.js';
 
 export default function LoginForm()
 {
 
-const [loggedIn, setLoggedIn] = useState(false);
+const [userName, setUserName] = useState("");
 
-//{loggedIn && <Redirect to="/default" />}
   return (
     <div className="section is-fullheight">
       <div className="container">
@@ -20,11 +20,11 @@ const [loggedIn, setLoggedIn] = useState(false);
                 <div className="control">
                   <input
                     name="username"
-                    onChange={(e) => setLoggedIn(e.target.value)}
+                    onChange={(e) => setUserName(e.target.value)}
                   />
                 </div>
               </div>
-              <button onClick={(e) => console.log(loggedIn)}className="button is-block is-info is-fullwidth">
+              <button onClick={(e) => CreateSingleUser(userName)}className="button is-block is-info is-fullwidth">
                 Login
               </button>
             </div>
