@@ -6,42 +6,41 @@ import { collection, query, onSnapshot } from "firebase/firestore";
 // Add a new document in collection "Users"
 export async function CreateSingleUser(userName)
 {
-    var ipAddress = null;
-    GetIPAddress((data) => ipAddress = data)
-    ipAddress = CleanIp(ipAddress);
-
+    var ipAddress = null; 
+    await GetIPAddress((data) => { ipAddress = data });
     var user_object = 
     {
-        user_ip: ipAddress,
-        user_name: userName
+        user_name: userName,
+        user_ip: ipAddress
     };
 
     await setDoc(doc(db, "users", ipAddress), user_object);
+
+    // Validate that User Exists.
+    //LookUpUserIp(ipAddress);
 }
 
 // Look up user from "Users" collection
-export async function LookUpUserIp(ipAddress, callBack)
+export async function LookUpUserIp( callBack )
 {
-    ipAddress = CleanIp(ipAddress);
+    var ipAddress = null; 
+    await GetIPAddress((data) => { ipAddress = data });
     const docRef = doc(db, "users", ipAddress);
     const docSnap = await getDoc(docRef);
-    
+    let obj = {user_name: "Hello", user_ip: "hello"};
     if (docSnap.exists()) {
-      console.log("Data For IP Address: "+ipAddress+" is ==> ");
-      let obj = docSnap.data();
-      callBack (obj)
-      console.log(obj);
+      //console.log("Data For IP Address: "+ipAddress+" is ==> ");
+      obj = docSnap.data();
+      callBack(obj);
     } else {
-      console.log("No such document, for IP Address: " + ipAddress);
-      return false;
+      //console.log("No such document, for IP Address: " + ipAddress);
+      callBack(obj);
     }
 }
 
 export async function SendGroupMessage(message)
 {
     var ipAddressData = { ip : null };
-    await GetIPAddress( (ip) => {ipAddressData.ip = ip} );
-
     var message_Object = 
     {
         user_ip: ipAddressData.ip,
@@ -75,13 +74,12 @@ export async function GetIPAddress( callBack )
 export async function PullGroupConversation(callBack)
 {
     const q = query(collection(db, "groupConvo"));
-    onSnapshot(q, (querySnapshot) => {
+    const unsub = onSnapshot(q, (querySnapshot) => {
       const newMessages = [];
       querySnapshot.forEach((doc) => {
         // Get list of messages
         var messageObject = doc.data();
         newMessages.push(messageObject)
-        callBack(newMessages);
       });
     });
 }
@@ -118,18 +116,12 @@ function ConvertIPAddressIntoUserId(user_ipAddress)
     return user_id;
 }
 
-
 function CleanIp (ipAddress)
 {
     var newData = ipAddress.trim();
 
     return newData;
 }
-
-//export const RegisterIPAsUser = GetIPAddress;
-//export const CreateUser = CreateSingleUser;
-//export const SendGroupMessage = UpdateGroupConversation;
-//export const UpdateMessages = PullGroupConversation;
 
 function generateGuid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
