@@ -14,7 +14,7 @@ export default function MessageSendForm() {
             InputProps={{
                 endAdornment: (
                 <InputAdornment position="end">
-                    <Button variant="text" onClick={(e) => SendGroupMessage(messageContent)}>Text</Button>
+                    <Button variant="text" onClick={(e) => SendGroupMessage(messageContent)}>Send</Button>
                 </InputAdornment>
             ),
             }}

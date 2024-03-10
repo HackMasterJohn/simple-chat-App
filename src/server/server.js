@@ -16,8 +16,8 @@ export async function CreateSingleUser(userName)
     };
 
     await setDoc(doc(db, "users", ipAddress), user_object);
+
     // Validate that User Exists.
-    LookUpUserIp((data) => {console.log(data)});
     store.dispatch({type: 'SET_USER', payload: user_object});
 }
 
@@ -28,14 +28,11 @@ export async function LookUpUserIp( callBack )
     await GetIPAddress((data) => { ipAddress = data });
     const docRef = doc(db, "users", ipAddress);
     const docSnap = await getDoc(docRef);
-    let obj = {user_name: "USer Name @ Look UP ", user_ip: "hello"};
     if (docSnap.exists()) {
-      //console.log("Data For IP Address: "+ipAddress+" is ==> ");
-      obj = docSnap.data();
+      let obj = docSnap.data();
       callBack(obj);
     } else {
-      //console.log("No such document, for IP Address: " + ipAddress);
-      callBack(obj);
+      console.log("No such document, for IP Address: " + ipAddress);
     }
 }
 
@@ -72,16 +69,18 @@ export async function GetIPAddress( callBack )
         });
 }
 
-export async function PullGroupConversation(callBack)
+export async function PullGroupConversation()
 {
     const q = query(collection(db, "groupConvo"));
     const unsub = onSnapshot(q, (querySnapshot) => {
       const newMessages = [];
+      console.log("Pulling new messages");
       querySnapshot.forEach((doc) => {
         // Get list of messages
         var messageObject = doc.data();
         newMessages.push(messageObject)
       });
+      store.dispatch({type: 'UPDATE_FEED', messages: newMessages});
     });
 }
 
