@@ -2,29 +2,20 @@ import './App.css';
 import { useSelector } from 'react-redux'
 import ConversationContainer from './components/ConversationContainer';
 //import { GetIPAddress, LookUpUserIp } from './server/server.js';
-import { useDispatch } from 'react-redux';
 import LoginForm from './components/LoginForm';
-import { useEffect } from 'react';
 
 const findUserByIP = (state) => {
-  //console.log(state);
-  let value = false;
-  console.log("State IP is "+state.ActiveUser);
-  return value;
+  let obj = state.client;
+  console.log("I TOO WAS CALLED");
+  let value = obj.user_name == null;
+  return !value;
 }
 
 function App() {
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch({ type: 'SET_USER' });
-  },[]);
-  
-  const authenticatedClient = useSelector((state) => findUserByIP(state.client));
-
   return (
     <div className="App">
       {
-        authenticatedClient ? 
+        useSelector(findUserByIP) ? 
         (
           <ConversationContainer />
         ):

@@ -1,6 +1,7 @@
 import { doc, setDoc, getDoc } from "firebase/firestore"; 
 import { db } from "../server/firestore.js"; 
 import { collection, query, onSnapshot } from "firebase/firestore";
+import store  from '../store';
 
 
 // Add a new document in collection "Users"
@@ -15,9 +16,9 @@ export async function CreateSingleUser(userName)
     };
 
     await setDoc(doc(db, "users", ipAddress), user_object);
-
     // Validate that User Exists.
-    //LookUpUserIp(ipAddress);
+    LookUpUserIp((data) => {console.log(data)});
+    store.dispatch({type: 'SET_USER', payload: user_object});
 }
 
 // Look up user from "Users" collection
@@ -27,7 +28,7 @@ export async function LookUpUserIp( callBack )
     await GetIPAddress((data) => { ipAddress = data });
     const docRef = doc(db, "users", ipAddress);
     const docSnap = await getDoc(docRef);
-    let obj = {user_name: "Hello", user_ip: "hello"};
+    let obj = {user_name: "USer Name @ Look UP ", user_ip: "hello"};
     if (docSnap.exists()) {
       //console.log("Data For IP Address: "+ipAddress+" is ==> ");
       obj = docSnap.data();
