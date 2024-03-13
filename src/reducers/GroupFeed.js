@@ -1,6 +1,7 @@
+import { PullGroupConversation }  from '../server/server.js'
 const initialState = 
 {
-  messages: []
+  messages: PullGroupConversation()
 }
   
 export default function GroupFeedReducer(state = initialState, action) {

@@ -71,15 +71,8 @@ export async function GetIPAddress( callBack )
 
 export async function PullGroupConversation()
 {
-    const q = query(collection(db, "groupConvo"));
-    const unsub = onSnapshot(q, (querySnapshot) => {
-      const newMessages = [];
-      console.log("Pulling new messages");
-      querySnapshot.forEach((doc) => {
-        // Get list of messages
-        var messageObject = doc.data();
-        newMessages.push(messageObject)
-      });
+    return onSnapshot(query(collection(db, "groupConvo")), (querySnapshot) => {
+      const newMessages = querySnapshot.docs.map((doc) => doc.data());
       store.dispatch({type: 'UPDATE_FEED', messages: newMessages});
     });
 }
