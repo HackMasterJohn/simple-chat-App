@@ -3,22 +3,22 @@ import Box from '@mui/material/Box';
 import Message from './Message';
 import MessageSendForm from './MessageSendForm';
 import { useSelector } from 'react-redux';
+import '../css/conversationStyles.css';
 
 function GetMessageView (messageList)
 {
-  console.log(messageList);
+  //console.log(messageList);
     return messageList.map(
         (messageObj, i) =>
-            <Message key={i} username={messageObj.user_name} message={messageObj.message} />
+            <Message key={i} username={messageObj.user_name} message={messageObj.message} num={i}/>
         );
 }
 
 export default function ConversationContainer() {
 
   return (
-    <Box sx={{}}>
+    <div className="chat">
       { useSelector((state) => GetMessageView(state.group.messages)) }
-      <MessageSendForm />
-    </Box>
+    </div>
   );
 }

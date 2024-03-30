@@ -32,7 +32,7 @@ export async function LookUpUserIp( callBack )
       let obj = docSnap.data();
       callBack(obj);
     } else {
-      console.log("No such document, for IP Address: " + ipAddress);
+      //console.log("No such document, for IP Address: " + ipAddress);
     }
 }
 
@@ -134,7 +134,7 @@ async function CreateSingleConversation(user1, user2)
         convo_id: conversationId,
         messages: []
     };
-    console.log(convo_object);
+    //console.log(convo_object);
 
     //await setDoc(doc(db, "conversations", convo_id_asString), convo_object);
 }
